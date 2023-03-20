@@ -37,7 +37,7 @@ module "morsh_instance_ya_1" {
   vpc_subnet_id        = yandex_vpc_subnet.morsh-subnet-a.id
   creation_zone_yandex = var.zone_yandex_a
   os_disk_size         = var.os_disk_size
-  os_disk_type         = "network-hdd"
+  os_disk_type         = "network-ssd"
   prefix               = "server"
   vm_vcpu_qty          = 4
   vm_ram_qty           = 4

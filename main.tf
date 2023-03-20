@@ -17,7 +17,7 @@ terraform {
   backend "s3" {
     endpoint = "storage.yandexcloud.net"
     region   = "ru-central1"
-    key      = "SF-B9-JFrog-Artifactory.tfstate"
+    key      = "SF-B11-Jenkins-CI.tfstate"
 
 
     skip_region_validation      = true

@@ -16,11 +16,17 @@ output "ssh_key_server_pub" {
   sensitive = true
 }
 
-output "jfrog_artifactory_super_admin_user" {
-  value = data.ansiblevault_path.jfrog_artifacory_super_user.value
+output "jenkins_agent_2_secret" {
+  value     = data.ansiblevault_path.jenkins_agent_2_secret.value
+  sensitive = true
 }
 
-output "jfrog_artifactory_super_admin_password" {
-  value     = data.ansiblevault_path.jfrog_artifacory_super_user_password.value
+output "jenkins_agent_1_secret" {
+  value     = data.ansiblevault_path.jenkins_agent_1_secret.value
+  sensitive = true
+}
+
+output "jenkins_archive_password" {
+  value     = data.ansiblevault_path.jenkins_archive_password.value
   sensitive = true
 }
