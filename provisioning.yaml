@@ -1,8 +1,12 @@
 ---
-- hosts: artifactory
+- hosts: Jenkins-CI
   gather_facts: yes
   become: yes   
   roles:
-    - role: common/artifactory
+    - role: Infrastructure/docker
+    - role: Infrastructure/postgresql
+    - role: Jenkins
+      
+       
       
        
