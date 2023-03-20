@@ -2,7 +2,127 @@
 
 ## [Roles](https://github.com/Morshimus/SkillFactory-B9-JFrog-Artifactory-Roles)
 
+
+
+
+
 ## Задание
+
+
+```groovy
+pipeline {
+    agent {
+       node{
+          label 'agent-primary'
+        }    
+    }
+    stages {
+        stage('Preparation') { // for display purposes
+            steps {
+                git branch: 'main', url:'https://github.com/Morshimus/SkillFactory-B11-Project-CI-APP.git'
+                sh 'apk update && apk add ansible curl'
+                sh 'cd /tmp && ansible-playbook provision.yaml'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'docker build -t morsh92/skillfactory-web-pg:latest -t morsh92/skillfactory-web-pg:2.1 .' 
+            }
+        }
+        stage('Test'){
+            steps {
+                sh 'docker rm django-tst -f'
+                sh 'docker run --rm --name django-tst -v /tmp/django.conf:/app/django.conf:ro -p 8000:8000 -d morsh92/skillfactory-web-pg:latest'
+                sh 'sleep 30 && wget http://localhost:8000/admin && rm admin'
+                sh 'docker rm django-tst -f'
+            }    
+        }
+        stage('Release') {
+            steps {
+            withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'dockerpwd', usernameVariable: 'dockerusr')]) {
+                    sh "docker login -u ${dockerusr} -p ${dockerpwd}"
+                    sh "docker push morsh92/skillfactory-web-pg:latest"
+                    sh "docker push morsh92/skillfactory-web-pg:2.1"
+                    sh "docker logout && rm /home/jenkins/.docker/config.json"
+                }
+            }
+        }
+    }
+    post {
+     success {
+        withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+            sh  ("""
+            curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC *Branch*: ${env.GIT_BRANCH} *Build* : OK *Published* = YES'
+            """)
+        }
+    }
+
+     aborted {
+        withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+            sh  ("""
+            curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC *Branch*: ${env.GIT_BRANCH} *Build* : `Aborted` *Published* = `Aborted`'
+            """)
+        }
+    }
+     
+     failure {
+        withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+            sh  ("""
+            curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC  *Branch*: ${env.GIT_BRANCH} *Build* : `not OK` *Published* = `no`'
+            """)
+        }
+    }
+
+ }
+}
+```
+
+
+```groovy
+pipeline {
+    agent {
+       node{
+          label 'agent-secondary'
+        }    
+    }
+    stages {
+        stage('Preparation') { // for display purposes
+            steps {
+                sh 'apk update && apk add ansible'
+                sh 'ansible-galaxy role install --role-file /tmp/requirements.yml --roles-path ./roles'
+                sh 'docker pull morsh92/molecule:dind'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh '[ -d ./molecule ] || mkdir molecule'
+                sh 'rm -rf ./molecule/django || echo "absent"'
+                sh 'docker rm molecule-django -f'
+                sh 'docker run --rm -d --name=molecule-django -v  /home/jenkins/workspace/django-ansible-role/molecule:/opt/molecule -v  /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged morsh92/molecule:dind'
+                sh 'docker exec molecule-django  /bin/sh -c  "molecule init role morsh92.django -d docker"'    
+                sh 'cp -rf ./roles/django/* ./molecule/django'
+                sh '[ -d ./molecule/django/molecule/default ] || mkdir -p ./molecule/django/molecule/default'
+                sh 'mv ./molecule/django/molecule.yml ./molecule/django/molecule/default'
+                sh 'mv ./molecule/django/verify.yml ./molecule/django/molecule/default'
+                sh '[ -d /home/jenkins/workspace/django-ansible-role/molecule/django/roles ] || mkdir -p /home/jenkins/workspace/django-ansible-role/molecule/django/roles'
+                sh 'rm -rf ./molecule/django/meta'
+                sh 'mkdir -p molecule/django/molecule/default/roles/morsh92.django && cp -rf ./roles/django/* ./molecule/django/molecule/default/roles/morsh92.django'
+                sh 'rm -rf ./molecule/django/molecule/default/roles/morsh92.django/meta'
+                sh 'cp -rf ./roles/Infrastructure/postgresql ./molecule/django/molecule/default/roles'
+                sh 'cp -rf ./roles/Infrastructure/docker ./molecule/django/molecule/default/roles'
+                sh 'docker exec  molecule-django  /bin/sh -c  "cd ./django && molecule create"'
+                sh 'docker exec  molecule-django  /bin/sh -c  "cd ./django && molecule converge"'
+                sh 'docker exec  molecule-django  /bin/sh -c  "cd ./django && molecule verify"'
+            }
+        }
+        stage('Deploy'){
+            steps {
+                sh 'echo "done!"'
+            }    
+        }
+    }
+}
+```
 
 
 # [MyAwsomeJenkins](http://158.160.32.253:8080/)
