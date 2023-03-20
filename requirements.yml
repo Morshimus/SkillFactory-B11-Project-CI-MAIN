@@ -1,0 +1,4 @@
+---
+- src: https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-CI-Jenkins-Cluster
+  name: Jenkins
+  scm: git 
