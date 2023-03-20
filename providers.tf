@@ -5,6 +5,6 @@ provider "yandex" {
 }
 
 provider "ansiblevault" {
-  vault_path  = "${local.loc_path}.vault_pass_B9"
+  vault_path  = "${local.loc_path}.vault_pass_B11"
   root_folder = local.loc_path
 }
