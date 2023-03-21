@@ -1,4 +1,4 @@
-# SkillFactory-B9-JFrog-Artifactory-MAIN
+# SkillFactory-B11-Project-CI-MAIN
 
 ## [Jenkins-Cluster-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-CI-Jenkins-Cluster)
 
