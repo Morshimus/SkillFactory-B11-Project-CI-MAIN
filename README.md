@@ -1,10 +1,11 @@
 # SkillFactory-B9-JFrog-Artifactory-MAIN
 
-## [Roles](https://github.com/Morshimus/SkillFactory-B9-JFrog-Artifactory-Roles)
+## [Jenkinc-Cluster-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-CI-Jenkins-Cluster)
 
 
+## [Django-Application-SF-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-APP)
 
-
+## [Infrastructire-Docker+Postgresql-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-INFRA)
 
 ## Задание
 
