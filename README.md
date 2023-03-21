@@ -9,11 +9,13 @@
 
 ## Задание
 
-* [x] **Создать в Я.Облаке виртуальную машину со следующими характеристиками: 2vCPU, 2GB, RAM, 20GB, HDD.**
+* [x] **Создать в Я.Облаке виртуальную машину со следующими характеристиками: ~~2~~4vCPU, ~~2~~4GB, RAM, ~~20~~50GB, ~~HDD~~SSD.**
 * [x] **Поднять на этой машине CI-сервер на ваш выбор.**
 > Был поднят [Jenkins](http://158.160.32.253:8080/)
 ![image](https://am3pap003files.storage.live.com/y4mGAmaTiInvZyNUPUeqTes34My-XUgQacFFJwSUHBL3GlSoGgmoSuUMjV81ahc1JFtZ92vB-721DK22v0EMnd4fp53fpmTtPzof0TfYqDVV7bshLF5RI90BjNLnQnsgBfN3LmpxWuV8f9-647clto5WRQDpkEBmX0iY1cPTPVfGr6kfN4cbY2Be16ArfVIv2fb?encodeFailures=1&width=1767&height=801)
 Для Агентов был создан отдельный образ в Dockerfile с dind:
+
+**Dockerfile:**
 ```Dockerfile
 FROM docker:dind
 ARG AGENT_VER=2.38
@@ -72,6 +74,160 @@ USER root
 
 
 ENTRYPOINT ["dockerd-entrypoint.sh"]
+```
+
+**Docke-compose:**
+```yaml
+version: '3.8'
+
+secrets:
+ agent-1-secret:
+  file: .agent_1_secret
+ agent-2-secret:
+  file: .agent_2_secret
+
+x-agent-image: &Agent_Image "${DOCKER_IMG_agent:-morsh92/jenkins-agent-dind:alpine}" 
+x-agent-user: &Agent_User "${DOCKER_USER_agent:-root}"
+x-agent-volumes: &Agent_Volumes
+  - ./agents_share:/tmp:rw
+x-agent-1-cpu: &Agent_1_CPU "${DOCKER_agent_1_CPUS:-1}"
+x-agent-1-mem: &Agent_1_MEM "${DOCKER_agent_1_MEMORY:-512MB}"
+x-agent-2-cpu: &Agent_2_CPU "${DOCKER_agent_2_CPUS:-1}"
+x-agent-2-mem: &Agent_2_MEM "${DOCKER_agent_2_MEMORY:-724MB}"
+x-agent-1-env: &Agent_1_ENV
+  - JENKINS_SECRET_FILE=/run/secrets/agent-1-secret
+  - JENKINS_URL=http://master:8080
+  - JENKINS_AGENT_NAME=agent-1
+  - JENKINS_AGENT_WORKDIR=/home/jenkins
+x-agent-2-env: &Agent_2_ENV
+  - JENKINS_SECRET_FILE=/run/secrets/agent-2-secret
+  - JENKINS_URL=http://master:8080
+  - JENKINS_AGENT_NAME=agent-2
+  - JENKINS_AGENT_WORKDIR=/home/jenkins
+x-agent-1-secrets: &Agent_1_Secret
+  - agent-1-secret
+x-agent-2-secrets: &Agent_2_Secret
+  - agent-2-secret
+
+x-logging: &logging
+ driver: "json-file"
+ options:
+   max-size: "100m"
+   max-file: "1"
+
+
+services:
+ jenkins-main:
+  image: "${DOCKER_IMG_main:-jenkins/jenkins:lts}"
+  privileged: true
+  user: "${DOCKER_USER_main:-root}"
+  deploy:
+    resources:
+      limits:
+        cpus: "${DOCKER_main_CPUS:-2}"
+        memory: "${DOCKER_main_MEMORY:-2GB}"
+  restart: unless-stopped
+  healthcheck:
+    test: curl -I http://master:8080/login --max-time 5 | grep 200
+    interval: 5s
+    timeout: 10s
+    start_period: 180s
+    retries: 10
+  sysctls:
+   - net.ipv4.ip_local_port_range=1024 65000
+   - net.ipv4.conf.all.accept_redirects=0
+   - net.ipv4.conf.all.secure_redirects=0
+   - net.ipv4.conf.all.send_redirects=0
+  networks:
+   backend:
+     aliases:
+        - master
+   frontend:
+  ports:
+   - "8080:8080"
+   - "50000:50000"
+  volumes:   
+   - ./home:/var/jenkins_home:rw
+   - /var/run/docker.sock:/var/run/docker.sock
+  logging: *logging
+
+ 
+ jenkins-agent-1: 
+   image: *Agent_Image
+   user: *Agent_User
+   privileged: true
+   deploy: 
+    resources:
+      limits:
+        cpus: *Agent_1_CPU
+        memory: *Agent_1_MEM
+   restart:  unless-stopped
+   depends_on:
+    jenkins-main:
+     condition: service_healthy
+   sysctls: 
+    - net.ipv4.ip_local_port_range=1024 65000
+    - net.ipv4.conf.all.accept_redirects=0
+    - net.ipv4.conf.all.secure_redirects=0
+    - net.ipv4.conf.all.send_redirects=0
+   environment: *Agent_1_ENV
+   secrets: *Agent_1_Secret
+   networks: 
+    frontend:
+    backend:
+      aliases:
+         - slave-1
+   volumes: *Agent_Volumes
+   logging: *logging
+
+ jenkins-agent-2:
+  image: *Agent_Image
+  user: *Agent_User 
+  privileged: true
+  deploy: 
+    resources:
+      limits:
+        cpus:  *Agent_2_CPU
+        memory: *Agent_2_MEM
+  restart:  unless-stopped
+  depends_on:
+    jenkins-main:
+     condition: service_healthy
+  sysctls:
+    - net.ipv4.ip_local_port_range=1024 65000
+    - net.ipv4.conf.all.accept_redirects=0
+    - net.ipv4.conf.all.secure_redirects=0
+    - net.ipv4.conf.all.send_redirects=0 
+  environment: *Agent_2_ENV
+  secrets: *Agent_2_Secret
+  networks:
+    frontend:
+    backend:
+      aliases:
+         - slave-2
+  volumes: *Agent_Volumes
+  logging: *logging
+  
+
+
+networks:
+ frontend:
+   driver: bridge
+   driver_opts:
+      com.docker.network.enable_ipv6: "false"
+   ipam:
+     driver: default
+     config:
+      - subnet: 10.212.21.0/28
+ backend:
+   internal: true
+   driver: bridge
+   driver_opts:
+     com.docker.network.enable_ipv6: "false"
+   ipam:
+     driver: default
+     config:
+      - subnet: 10.111.111.0/28       
 ```
 
 * [x] **Создать репозиторий (github/gitlab/проч. на ваше усмотрение) и создать там файл index.html.**
