@@ -1,6 +1,6 @@
 # SkillFactory-B9-JFrog-Artifactory-MAIN
 
-## [Jenkinc-Cluster-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-CI-Jenkins-Cluster)
+## [Jenkins-Cluster-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-CI-Jenkins-Cluster)
 
 
 ## [Django-Application-SF-Role](https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-APP)
@@ -13,8 +13,7 @@
 * [x] **Поднять на этой машине CI-сервер на ваш выбор.**
 > Был поднят [Jenkins](http://158.160.32.253:8080/)
 ![image](https://am3pap003files.storage.live.com/y4mGAmaTiInvZyNUPUeqTes34My-XUgQacFFJwSUHBL3GlSoGgmoSuUMjV81ahc1JFtZ92vB-721DK22v0EMnd4fp53fpmTtPzof0TfYqDVV7bshLF5RI90BjNLnQnsgBfN3LmpxWuV8f9-647clto5WRQDpkEBmX0iY1cPTPVfGr6kfN4cbY2Be16ArfVIv2fb?encodeFailures=1&width=1767&height=801)
-Для Агентов был создан отдкльный образ в Dockerfile с dind:
-
+Для Агентов был создан отдельный образ в Dockerfile с dind:
 ```Dockerfile
 FROM docker:dind
 ARG AGENT_VER=2.38
