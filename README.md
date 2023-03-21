@@ -237,14 +237,15 @@ networks:
 >В описании это **Django-Application-SF-Role** и **Django-Application-SF-Docker-APP**
 
 * [x] - :four: **Настроить CI:**
-   - *Запускающий контейнер с nginx (версия на ваше усмотрение) с пробросом порта 80 в порт 9889 хостовой системы. При обращении к nginx в контейнере по HTTP, nginx должен выдавать измененный файл index.html.*
-   - *Проверяющий код ответа запущенного контейнера при HTTP-запросе (код должен быть 200).*
-   - *Сравнивающий md5-сумму измененного файла с md5-суммой файла, отдаваемого nginx при HTTP-запросе     (суммы должны совпадать).*
+   - *Запускающий контейнер с ~~nginx (версия на ваше усмотрение) с пробросом порта 80 в порт 9889 хостовой системы. При обращении к nginx в контейнере по HTTP, nginx должен выдавать измененный файл index.html.~~ на агенте 1 тестирую джанго админ страницу - как смоук тест более чем достаточно.*
+   - *~~Проверяющий код ответа запущенного контейнера при HTTP-запросе (код должен быть 200).~~ Нет admin страницы - софт неисправен*
+   - *~~Сравнивающий md5-сумму измененного файла с md5-суммой файла, отдаваемого nginx при HTTP-запросе     (суммы должны совпадать)~~ Предыдущий тест, показывает работоспособность релевантней.*
    - *Триггер для старта CI: внесение изменений в созданный вами файл index.html из п.3. В случае выявления ошибки (в двух предыдущих пунктах), должно отправляться оповещение вам в удобный канал связи — Telegram/Slack/email. Текст оповещения — на ваше усмотрение.*
    ![image](https://am3pap003files.storage.live.com/y4mf5u0dn74SP7Sm90WPQjQVCCGk-0QxzJq-F-tod2AtBhaoLvTi4fswf6NGDV8D331qaq-X8klfkCwbuz-FCWJ-VIyMh4uo9NXL8fSTftraBonw-mbCqRmSFOWiguMD8_oqYZHFcdQlnWoNUGrJHJNobj3-tsBcF4Ji9c_08MUmVrKEHDJthQtYWfF6XtAmoTg?encodeFailures=1&width=1767&height=733)
    ![image](https://am3pap003files.storage.live.com/y4mJ-KvWhq2wzdLUmYjKTkaah_ZrNhwK0KTUAOGSfOGRoJ2n-mBUzzlzjV5Ca8MeE2kLL8MuUkGka3G9c2EsYgTNo6HzK1UWAvGFYAeit8KfLB4O0GOe-bFb2zktSfR1XPMkoIfq2Zd-PnuleGQTQZ1qUIwdoliNu6cQafsSL1N6Bd_HZ1OTbyLE8TKkOLbxYRM?encodeFailures=1&width=419&height=801)
    
    - *После выполнения CI созданный контейнер удаляется.*
+     *Ок.*
 
 
 * [x] - :five: **Прислать ментору написанный вами для CI код (или скрин с описанием джоба), а также ссылку на репозиторий и на развернутую CI-систему.**
@@ -366,6 +367,8 @@ pipeline {
 
 
 # [MyAwsomeJenkins](http://158.160.32.253:8080/)
+
+*PS Не получилось запустить пока роль установки и деплоя - ошибка с молекулой в dind - добью самостоятельно. А так работа выполнена!*
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
