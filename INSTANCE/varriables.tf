@@ -94,3 +94,10 @@ variable "useros" {
   description = "Default admin user for server"
   default     = "morsh-adm"
 }
+
+variable "nat_ip" {
+  type        = string
+  default     = null
+  description = "Public reseved ip address"
+
+}

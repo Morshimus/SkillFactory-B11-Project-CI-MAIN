@@ -4,6 +4,7 @@ resource "yandex_vpc_network" "morsh-network" {
 }
 
 
+
 resource "yandex_vpc_subnet" "morsh-subnet-a" {
   name           = var.subnet_a_name_yandex
   description    = var.subnet_a_description_yandex
@@ -13,6 +14,13 @@ resource "yandex_vpc_subnet" "morsh-subnet-a" {
 
 }
 
+
+resource "yandex_vpc_address" "morsh-addr-pub" {
+  name = var.name_pubipv4_addr
+  external_ipv4_address {
+    zone_id = var.zone_yandex_a
+  }
+}
 
 #resource "yandex_vpc_subnet" "morsh-subnet-b" {
 #  name           = var.subnet_b_name_yandex
@@ -43,6 +51,7 @@ module "morsh_instance_ya_1" {
   vm_ram_qty           = 4
   adm_pub_key          = data.ansiblevault_path.ssh_server_pub.value
   useros               = var.useros
+  nat_ip               = yandex_vpc_address.morsh-addr-pub.external_ipv4_address[0].address
 }
 
 resource "local_file" "yc_inventory" {

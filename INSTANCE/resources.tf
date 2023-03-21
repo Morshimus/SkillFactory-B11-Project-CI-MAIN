@@ -40,6 +40,6 @@ resource "yandex_compute_instance" "morsh_server" {
     subnet_id          = var.vpc_subnet_id
     security_group_ids = []
     nat                = var.nat_state
-
+    nat_ip_address     = var.nat_ip
   }
 }

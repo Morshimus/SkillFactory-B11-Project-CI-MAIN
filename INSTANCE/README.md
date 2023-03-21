@@ -33,6 +33,7 @@ No modules.
 | <a name="input_cloud_id"></a> [cloud\_id](#input\_cloud\_id) | n/a | `string` | `"b1gm80drf2f2dk70jc3f"` | no |
 | <a name="input_creation_zone_yandex"></a> [creation\_zone\_yandex](#input\_creation\_zone\_yandex) | n/a | `string` | n/a | yes |
 | <a name="input_folder_id"></a> [folder\_id](#input\_folder\_id) | n/a | `string` | `"b1g16ac5if9cnssnhfip"` | no |
+| <a name="input_nat_ip"></a> [nat\_ip](#input\_nat\_ip) | Public reseved ip address | `string` | `null` | no |
 | <a name="input_nat_state"></a> [nat\_state](#input\_nat\_state) | Allow outside access to VM | `bool` | `true` | no |
 | <a name="input_os_disk_size"></a> [os\_disk\_size](#input\_os\_disk\_size) | n/a | `string` | `"5"` | no |
 | <a name="input_os_disk_type"></a> [os\_disk\_type](#input\_os\_disk\_type) | n/a | `string` | `"network-ssd"` | no |

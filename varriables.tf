@@ -90,3 +90,10 @@ variable "useros" {
   default     = "ubuntu"
   description = "OS native default user"
 }
+
+variable "name_pubipv4_addr" {
+  type        = string
+  default     = "morsh-ipv4-pub"
+  description = "Public IPv4 address for hosted sevices"
+
+}
