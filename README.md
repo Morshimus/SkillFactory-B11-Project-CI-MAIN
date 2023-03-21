@@ -241,6 +241,8 @@ networks:
    - *Проверяющий код ответа запущенного контейнера при HTTP-запросе (код должен быть 200).*
    - *Сравнивающий md5-сумму измененного файла с md5-суммой файла, отдаваемого nginx при HTTP-запросе     (суммы должны совпадать).*
    - *Триггер для старта CI: внесение изменений в созданный вами файл index.html из п.3. В случае выявления ошибки (в двух предыдущих пунктах), должно отправляться оповещение вам в удобный канал связи — Telegram/Slack/email. Текст оповещения — на ваше усмотрение.*
+   ![image](https://am3pap003files.storage.live.com/y4mJ-KvWhq2wzdLUmYjKTkaah_ZrNhwK0KTUAOGSfOGRoJ2n-mBUzzlzjV5Ca8MeE2kLL8MuUkGka3G9c2EsYgTNo6HzK1UWAvGFYAeit8KfLB4O0GOe-bFb2zktSfR1XPMkoIfq2Zd-PnuleGQTQZ1qUIwdoliNu6cQafsSL1N6Bd_HZ1OTbyLE8TKkOLbxYRM?encodeFailures=1&width=419&height=801)
+   
    - *После выполнения CI созданный контейнер удаляется.*
 
 
