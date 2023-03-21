@@ -12,6 +12,67 @@
 * [x] **Поднять на этой машине CI-сервер на ваш выбор.**
 > Был поднят [Jenkins](http://158.160.32.253:8080/)
 ![image](https://am3pap003files.storage.live.com/y4mGAmaTiInvZyNUPUeqTes34My-XUgQacFFJwSUHBL3GlSoGgmoSuUMjV81ahc1JFtZ92vB-721DK22v0EMnd4fp53fpmTtPzof0TfYqDVV7bshLF5RI90BjNLnQnsgBfN3LmpxWuV8f9-647clto5WRQDpkEBmX0iY1cPTPVfGr6kfN4cbY2Be16ArfVIv2fb?encodeFailures=1&width=1767&height=801)
+Для Агентов был создан отдкльный образ в Dockerfile с dind:
+
+```Dockerfile
+FROM docker:dind
+ARG AGENT_VER=2.38
+
+ARG USER=jenkins
+ARG GROUP=jenkins
+ARG UID=1024
+ARG GID=1024
+
+ARG AGENT_WORKDIR=/home/${USER}/agent
+ENV HOME /home/${USER}
+ENV AGENT_WORKDIR=${AGENT_WORKDIR}
+
+COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+COPY agent.jar   /usr/share/jenkins/slave.jar
+
+RUN addgroup -g ${GID} ${GROUP} \
+    && adduser -D -h ${HOME} -g "${USER} service" \
+         -u ${UID} -G ${GROUP} ${USER} \
+    && set -x \
+    && apk add --update --no-cache \
+         curl \
+         bash \
+         git \
+         openssh-client \
+         openssl \
+         procps \
+         openjdk11 \
+    && printf "\n### Installing Jenkins agent v${AGENT_VER} ###\n\n" \
+    && chmod 755 /usr/share/jenkins \
+    && chmod 644 /usr/share/jenkins/slave.jar \
+    && mkdir ${HOME}/.jenkins \
+    && mkdir -p ${AGENT_WORKDIR} \
+    && chown -R ${USER}:${GROUP} ${HOME} \
+#    && chmod +x /usr/local/bin/jenkins-agent \
+    && printf "\n### Cleaning up ###\n\n" \
+    && apk del --purge -v \
+         curl
+
+#VOLUME ${HOME}/.jenkins
+#VOLUME ${AGENT_WORKDIR}
+
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk/
+
+ENV JAVA_BIN="$JAVA_HOME/bin/java"
+
+ENV JENKINS_URL=""
+ENV JENKINS_AGENT_NAME=""
+ENV JENKINS_AGENT_WORKDIR=""
+ENV JENKINS_SECRET_FILE=""
+
+WORKDIR ${HOME}
+
+
+USER root
+
+
+ENTRYPOINT ["dockerd-entrypoint.sh"]
+```
 
 * [x] **Создать репозиторий (github/gitlab/проч. на ваше усмотрение) и создать там файл index.html.**
 
