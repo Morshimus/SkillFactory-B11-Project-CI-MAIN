@@ -73,7 +73,7 @@ variable "folder_id_yandex" {
 
 variable "os_disk_size" {
   type        = string
-  default     = "150"
+  default     = "50"
   description = "Size of required vm"
 
 }
