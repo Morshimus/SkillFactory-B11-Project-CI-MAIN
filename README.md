@@ -14,7 +14,7 @@
 
 * [x] - :one: **Создать в Я.Облаке виртуальную машину со следующими характеристиками: ~~2~~4vCPU, ~~2~~4GB, RAM, ~~20~~50GB, ~~HDD~~SSD.**
 * [x] - :two:**Поднять на этой машине CI-сервер на ваш выбор.**
-> Был поднят [Jenkins](http://158.160.32.253:8080/)
+> Был поднят [Jenkins](http://158.160.43.66:8080/)
 ![image](https://am3pap003files.storage.live.com/y4mGAmaTiInvZyNUPUeqTes34My-XUgQacFFJwSUHBL3GlSoGgmoSuUMjV81ahc1JFtZ92vB-721DK22v0EMnd4fp53fpmTtPzof0TfYqDVV7bshLF5RI90BjNLnQnsgBfN3LmpxWuV8f9-647clto5WRQDpkEBmX0iY1cPTPVfGr6kfN4cbY2Be16ArfVIv2fb?encodeFailures=1&width=1767&height=801)
 Для Агентов был создан отдельный образ в Dockerfile с dind:
 
@@ -329,7 +329,9 @@ pipeline {
     stages {
         stage('Preparation') { // for display purposes
             steps {
+                git branch: 'main', url:'https://github.com/Morshimus/SkillFactory-B11-Project-CI-Role-APP.git'
                 sh 'apk update && apk add ansible'
+                sh 'rm -rf ./roles || echo "No roles yet!"'
                 sh 'ansible-galaxy role install --role-file /tmp/requirements.yml --roles-path ./roles'
                 sh 'docker pull morsh92/molecule:dind'
             }
@@ -339,7 +341,7 @@ pipeline {
                 sh '[ -d ./molecule ] || mkdir molecule'
                 sh 'rm -rf ./molecule/django || echo "absent"'
                 sh 'docker rm molecule-django -f'
-                sh 'docker run --rm -d --name=molecule-django -v  /home/jenkins/workspace/django-ansible-role/molecule:/opt/molecule -v  /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged morsh92/molecule:dind'
+                sh 'docker run --rm -d --name=molecule-django -v  /home/jenkins/workspace/django-ansible-role/molecule:/opt/molecule  --privileged morsh92/molecule:dind'
                 sh 'docker exec molecule-django  /bin/sh -c  "molecule init role morsh92.django -d docker"'    
                 sh 'cp -rf ./roles/django/* ./molecule/django'
                 sh '[ -d ./molecule/django/molecule/default ] || mkdir -p ./molecule/django/molecule/default'
@@ -362,13 +364,38 @@ pipeline {
             }    
         }
     }
+    post {
+        success {
+            withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+                sh  ("""
+                curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC *Branch*: ${env.GIT_BRANCH} *Build* : OK *Published* = YES'
+                """)
+            }
+        }
+
+        aborted {
+            withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+                sh  ("""
+                curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC *Branch*: ${env.GIT_BRANCH} *Build* : `Aborted` *Published* = `Aborted`'
+                """)
+           }
+        }
+     
+        failure {
+            withCredentials([string(credentialsId: 'jenkins_polar_bot', variable: 'TOKEN'), string(credentialsId: 'chatWebid', variable: 'CHAT_ID')]) {
+                sh  ("""
+                curl -s -X POST https://api.telegram.org/bot${TOKEN}/sendMessage -d chat_id=${CHAT_ID} -d parse_mode=markdown -d text='*${env.JOB_NAME}* : POC  *Branch*: ${env.GIT_BRANCH} *Build* : `not OK` *Published* = `no`'
+                """)
+            }
+        }
+
+    }
 }
 ```
 
 
-# [MyAwsomeJenkins](http://158.160.32.253:8080/)
+# [MyAwsomeJenkins](http://158.160.43.66:8080/)
 
-*PS Не получилось запустить пока роль установки и деплоя - ошибка с молекулой в dind - добью самостоятельно. А так работа выполнена!*
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
